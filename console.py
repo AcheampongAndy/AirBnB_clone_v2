@@ -11,16 +11,14 @@ from models.city import City
 from models.amenity import Amenity
 from models.place import Place
 from models.review import Review
-
+import shlex
 
 class HBNBCommand(cmd.Cmd):
     """class HBNBCommand"""
 
     prompt = "(hbnb) "
-    _classes = [
-            "BaseModel", "User", "State",
-            "City", "Amenity", "Place", "Review"
-            ]
+    _classes = {"Amenity": Amenity, "BaseModel": BaseModel, "City": City,
+           "Place": Place, "Review": Review, "State": State, "User": User}
     methods = ["all", "show", "count", "update", "destroy", "count"]
 
     def precmd(self, line):
@@ -77,20 +75,42 @@ class HBNBCommand(cmd.Cmd):
         """
         pass
 
-    def do_create(self, line):
+    def do_create(self, arg):
         """Create a new instance of BaseModel and save it to the JSON file
 
-        Usage: create <class_name>
+        Usage: create <Class name> <param 1> <param 2> <param 3>...
+        Param syntax: <key name>=<value>
         """
-        if not line:
+
+        if not arg:
             print("** class name missing **")
-        else:
-            try:
-                new_instance = eval(line)()
-                new_instance.save()
-                print(new_instance.id)
-            except NameError:
-                print("** class doesn't exist **")
+            return
+
+        args = arg.split()
+        class_name = args[0]
+        parameters = ' '.join(args[1:])
+
+        if class_name not in self._classes:
+            print("** class doesn't exit **")
+            return
+
+        para_dict = {}
+
+        for item in parameters.split():
+            key, value = item.split('=')
+            if value.startswith('"') and value.endswith('"'):
+                value = value[1:-1].replace('_', ' ')
+
+            if '.' in value:
+                para_dict[key] = float(value)
+            elif value.isdigit():
+                para_dict[key] = int(value)
+            else:
+                para_dict[key] = value
+
+        instance = self._classes[class_name](**para_dict)
+        instance.save()
+        print(instance.id)
 
     def do_show(self, line):
         """Show a string representation of an instance
@@ -217,7 +237,6 @@ class HBNBCommand(cmd.Cmd):
                     print("** instance id missing **")
             else:
                 print("** class doesn't exist **")
-
 
 if __name__ == '__main__':
     HBNBCommand().cmdloop()

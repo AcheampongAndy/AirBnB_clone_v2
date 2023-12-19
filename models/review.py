@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 
-from models.base_model import BaseModel
-
+from models.base_model import BaseModel, Base
+from sqlalchemy import Column, Integer, String, ForeignKey
 
 class Review(BaseModel):
     """
@@ -12,6 +12,7 @@ class Review(BaseModel):
     user_id: string - empty string: it will be the User.id
     text: string - empty string
     """
-    place_id: str = ""
-    user_id: str = ""
-    text: str = ""
+    __tablename__ = 'reviews'
+    place_id = Column(Integer, ForeignKey('places.id'), nullable=False)
+    user_id = Column(Integer, ForeignKey('users.id'), nullable=False)
+    text = Column(String(128))

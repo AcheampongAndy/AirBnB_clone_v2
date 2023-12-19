@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 
 from models.base_model import BaseModel
-
+from sqlalchemy import Column, String 
 
 class Amenity(BaseModel):
     """
@@ -10,4 +10,5 @@ class Amenity(BaseModel):
     Parameters:
     name: string - empty string
     """
-    name: str = ""
+    __tablename__ = 'amenities'
+    name = Column(String(128))

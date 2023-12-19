@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 
-from models.base_model import BaseModel
-
+from models.base_model import BaseModel, Base
+from sqlalchemy import Column, Integer, ForeignKey, String
 
 class City(BaseModel):
     """
@@ -11,5 +11,6 @@ class City(BaseModel):
     state_id: string - empty string: it will be the State.id
     name: string - empty string
     """
-    state_id: str = ""
-    name: str = ""
+    __tablename__ = 'cities'
+    state_id = Column(Integer, ForeignKey('states.id'), nullable=False)
+    name = Column(String(128), nullable=False)
