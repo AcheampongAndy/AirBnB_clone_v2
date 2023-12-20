@@ -1,21 +1,13 @@
 #!/usr/bin/python3
 
-from models.base_model import BaseModel, Base
-from sqlalchemy.orm import relationship
-from sqlalchemy import Column, String, Table, ForeignKey
-from os import getenv
+from models.base_model import BaseModel
 
-class Amenity(BaseModel, Base):
+
+class Amenity(BaseModel):
     """
     Initializing the class
 
     Parameters:
     name: string - empty string
     """
-    __tablename__ = 'amenities'
-    if getenv('HBNB_TYPE_STORAGE') == 'db':
-        name = Column(String(128), nullable=False)
-        place_amenities = relationship('Place', secondary='place_amenity', viewonly=False)
-
-    else:
-        name = ""
+    name: str = ""

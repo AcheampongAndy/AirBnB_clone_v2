@@ -14,12 +14,16 @@ from models.place import Place
 from models.review import Review
 import shlex
 
+
 class HBNBCommand(cmd.Cmd):
     """class HBNBCommand"""
+    _classes = {"User": User, "BaseModel": BaseModel,
+           "Place": Place, "State": State,
+           "City": City, "Amenity": Amenity,
+           "Review": Review}
 
     prompt = "(hbnb) "
-    _classes = {"Amenity": Amenity, "BaseModel": BaseModel, "City": City,
-           "Place": Place, "Review": Review, "State": State, "User": User}
+
     methods = ["all", "show", "count", "update", "destroy", "count"]
 
     def precmd(self, line):
@@ -103,7 +107,11 @@ class HBNBCommand(cmd.Cmd):
                 value = value[1:-1].replace('_', ' ')
 
             if '.' in value:
-                para_dict[key] = float(value)
+                left, right = value.split('.')
+                if left.isdigit() and right.isdigit():
+                    para_dict[key] = float(value)
+                else:
+                    para_dict[key] = value
             elif value.isdigit():
                 para_dict[key] = int(value)
             else:
@@ -165,20 +173,23 @@ class HBNBCommand(cmd.Cmd):
 
         Usage: all [class_name]
         """
-        all_objects = storage.all()
-        arg = split(line)
+
+        arg = shlex.split(line)
         results = []
+
         if len(arg) >= 1:
             if arg[0] in self._classes:
+                all_objects = storage.all(arg[0])
                 for key, obj in all_objects.items():
                     if key.startswith(arg[0]):
-                        results.append(obj.__str__())
+                        results.append(obj)
                 print(results)
             else:
                 print("** class doesn't exist **")
         else:
+            all_objects = storage.all()
             for obj in all_objects.values():
-                results.append(obj.__str__())
+                results.append(obj)
             print(results)
 
     def do_count(self, line):

@@ -18,10 +18,7 @@ class City(BaseModel, Base):
         state_id = Column(String(60), ForeignKey('states.id'), nullable=False)
         name = Column(String(128), nullable=False)
 
-        places = relationship('Place', cascade='all, delete-orphan', backref='user')
+        #places = relationship('Place', cascade='all, delete-orphan', backref='user')
     else:
         name=''
         state_id=''
-'''
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)'''

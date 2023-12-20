@@ -11,17 +11,18 @@ from models.amenity import Amenity
 from models.place import Place
 from models.review import Review
 
+classes = {"User": User, "BaseModel": BaseModel,
+           "Place": Place, "State": State,
+           "City": City, "Amenity": Amenity,
+           "Review": Review}
+
 class DBStorage:
     __engine = None
     __session = None
 
-    _classes = {"Amenity": Amenity, "BaseModel": BaseModel, "City": City,
-           "Place": Place, "Review": Review, "State": State, "User": User}
-
-
     def __init__(self):
-        self._classes = {"Amenity": Amenity, "BaseModel": BaseModel, "City": City,
-           "Place": Place, "Review": Review, "State": State, "User": User}
+        '''self._classes = {"Amenity": Amenity, "BaseModel": BaseModel, "City": City,
+           "Place": Place, "Review": Review, "State": State, "User": User}'''
 
         """Create the engine and configure the session for the MySQL database."""
         db_user = getenv('HBNB_MYSQL_USER')
@@ -44,23 +45,18 @@ class DBStorage:
         Query all objects from the current database session.
         """
         from models import storage
-        #classes = ['User', 'State', 'City', 'Amenity',
-         #          'Place', 'Review']
         result = {}
 
         if cls is not None:
-            query_result = self.__session.query(cls).all()
-            for obj in query_result:
-                key = f'{cls.__name__}.{obj.id}'
+            objs = self.__session.query(classes[cls]).all()
+            for obj in objs:
+                key = "{}.{}".format(type(obj).__name__, obj.id)
                 result[key] = obj
-        else:
-            for cls_name in _classes:
-                if cls_name in storage._classes:
-                    query_result = self.__session.query(
-                            storage._classes[cls_name]).all()
-                    for obj in query_result:
-                        key = f'{storage._classes[cls_name].__name__}.{obj.id}'
-                        result[key] = obj
+        '''else:
+            for clss in classes.values():
+                objs = self.__session.query(clss).all()
+                for obj in objs:
+                    result.append(repr(obj))'''
 
         return result
 
