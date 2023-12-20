@@ -2,7 +2,7 @@
 
 import uuid
 from datetime import datetime
-from models import storage
+#from models import storage
 from sqlalchemy import Column, String, Integer, DateTime
 from sqlalchemy.ext.declarative import declarative_base
 
@@ -14,7 +14,7 @@ class BaseModel:
         This defines common attributes and methods for other classes
     """
 
-    id = Column(String(60), primary_key=True, nullable=False, unique=True)
+    id = Column(String(60), primary_key=True, nullable=False, unique=False)
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
     updated_at = Column(DateTime, default=datetime.utcnow, nullable=False)
 
@@ -50,7 +50,6 @@ class BaseModel:
             if it’s a new instance (not from a dictionary representation)
             add a call to the method new(self) on storage
             """
-            storage.new(self)
 
     def __str__(self):
         """
@@ -72,6 +71,7 @@ class BaseModel:
         """
         Update the updated_at to the current datetime
         """
+        from models import storage
         self.updated_at = datetime.now()
         """ call save(self) method of storage """
         storage.new(self)
@@ -88,3 +88,9 @@ class BaseModel:
         sel_dict.pop('_sa_instance_state', None)
 
         return sel_dict
+
+    def delete(self):
+        '''
+        delete the current instance from the storage
+        '''
+        storage.delete(self)
