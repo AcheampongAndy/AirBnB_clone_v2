@@ -21,8 +21,6 @@ class DBStorage:
     __session = None
 
     def __init__(self):
-        '''self._classes = {"Amenity": Amenity, "BaseModel": BaseModel, "City": City,
-           "Place": Place, "Review": Review, "State": State, "User": User}'''
 
         """Create the engine and configure the session for the MySQL database."""
         db_user = getenv('HBNB_MYSQL_USER')
