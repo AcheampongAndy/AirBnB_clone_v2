@@ -17,7 +17,7 @@ class User(BaseModel, Base):
         last_name = Column(String(128), nullable=False)
 
         places = relationship('Place', passive_deletes=True, backref='user')
-        #reviews = relationship('Review', passive_deletes=True, backref='user')
+        reviews = relationship('Review', passive_deletes=True, backref='user')
     else:
         email = ""
         password = ""
