@@ -13,6 +13,7 @@ place_amenity = Table('place_amenity', Base.metadata,
         Column('amenity_id', String(60), ForeignKey('amenities.id'),
                nullable=False, primary_key=True))
 
+
 class Place(BaseModel, Base):
     """
     Initializing the class
@@ -84,31 +85,3 @@ class Place(BaseModel, Base):
             if amenity.place_id == self.id:
                 amenity_list.append(amenity)
         return amenity_list
-
-'''
-    @property
-    def amenities(self):
-        """
-        Getter attribute that returns the list of Amenity instances
-        based on the attribute amenity_ids that contains all Amenity.id
-        linked to the Place.
-        """
-        from models import storage
-        amenity_dict = storage.all('Amenity')
-        amenity_list = []
-        for amenity in amenity_dict.values():
-            if amenity.id in amenity_ids:
-                amenity_list.append(amenity)
-        return amenity_list
-
-
-    @amenities.setter
-    def amenities(self, amenity):
-        """
-        Setter attribute that handles append method for adding an Amenity.id
-        to the attribute amenity_ids. This method should accept only Amenity
-        object, otherwise, do nothing.
-        """
-        if isinstance(amenity, Amenity):
-            if amenity.place_id == self.id:
-                self.amenity_ids.append(amenity.id)'''
