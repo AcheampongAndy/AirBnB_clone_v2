@@ -6,13 +6,13 @@ from sqlalchemy import Column, Integer, String, Float, ForeignKey, Table
 from sqlalchemy.orm import relationship
 from os import getenv
 
-'''
+
 place_amenity = Table('place_amenity', Base.metadata,
-        Column('place_id', String(50), ForeignKey('places.id'),
+        Column('place_id', String(60), ForeignKey('places.id'),
                nullable=False, primary_key=True),
-        Column('amenity_id', String(50), ForeignKey('amenities.id'),
+        Column('amenity_id', String(60), ForeignKey('amenities.id'),
                nullable=False, primary_key=True))
-'''
+
 class Place(BaseModel, Base):
     """
     Initializing the class
@@ -41,10 +41,10 @@ class Place(BaseModel, Base):
         max_guest = Column(Integer, nullable=False, default=0)
         price_by_night = Column(Integer, nullable=False, default=0)
         latitude = Column(Float)
-        logitude = Column(Float)
+        longitude = Column(Float)
         reviews = relationship('Review', passive_deletes=True, backref='place')
-       # amenities = relationship('Amenity',back_populates="place_amenities",
-                                 #secondary=place_amenity, viewonly=False)
+        amenities = relationship('Amenity', back_populates="place_amenities",
+                                 secondary=place_amenity, viewonly=False)
     else:
         city_id = ""
         user_id = ""
@@ -58,7 +58,7 @@ class Place(BaseModel, Base):
         longitude = 0.0
         amenity_ids = []
 
-'''
+
     @property
     def reviews(self):
         """
@@ -66,9 +66,26 @@ class Place(BaseModel, Base):
         with place_id equals to the current Place.id.
         """
         from models import storage
-        return [review for review in storage.all(Review).values()
-                if review.place_id == self.id]
+        reviews_dict = storage.all('Review')
+        reviews_list = []
+        for review in reviews_dict.values():
+            if review.place_id == self.id:
+                reviews_list.append(review)
+        return reviews_list
 
+    @property
+    def amenities(self):
+        """getter attribute returns the list of Amenity instances"""
+        from models import storage
+        #from models.amenity import Amenity
+        amenity_list = []
+        all_amenities = storage.all('Amenity')
+        for amenity in all_amenities.values():
+            if amenity.place_id == self.id:
+                amenity_list.append(amenity)
+        return amenity_list
+
+'''
     @property
     def amenities(self):
         """
@@ -77,7 +94,12 @@ class Place(BaseModel, Base):
         linked to the Place.
         """
         from models import storage
-        return [storage.all(Amenity).get(amenity_id) for amenity_id in self.amenity_ids]
+        amenity_dict = storage.all('Amenity')
+        amenity_list = []
+        for amenity in amenity_dict.values():
+            if amenity.id in amenity_ids:
+                amenity_list.append(amenity)
+        return amenity_list
 
 
     @amenities.setter
@@ -88,4 +110,5 @@ class Place(BaseModel, Base):
         object, otherwise, do nothing.
         """
         if isinstance(amenity, Amenity):
-            self.amenity_ids.append(amenity.id)'''
+            if amenity.place_id == self.id:
+                self.amenity_ids.append(amenity.id)'''
