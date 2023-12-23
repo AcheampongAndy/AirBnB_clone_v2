@@ -5,6 +5,7 @@ from sqlalchemy import String, Column, String, ForeignKey
 from sqlalchemy.orm import relationship
 from os import getenv
 
+
 class User(BaseModel, Base):
     """
     User class inherits from BaseModel

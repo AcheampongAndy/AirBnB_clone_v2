@@ -5,6 +5,7 @@ from sqlalchemy import Column, String
 from sqlalchemy.orm import relationship
 from os import getenv
 
+
 class State(BaseModel, Base):
     """
     Initializing the class
@@ -16,9 +17,10 @@ class State(BaseModel, Base):
 
     if getenv('HBNB_TYPE_STORAGE') == 'db':
         name = Column(String(128), nullable=False)
-        cities = relationship("City", passive_deletes=True, backref="state")
+        cities = relationship("City", passive_deletes=True,
+                              backref="state")
     else:
-        name=''
+        name = ''
 
         @property
         def cities(self):

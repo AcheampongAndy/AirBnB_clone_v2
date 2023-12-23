@@ -7,11 +7,11 @@ from sqlalchemy.orm import relationship
 from os import getenv
 
 
-place_amenity = Table('place_amenity', Base.metadata,
-        Column('place_id', String(60), ForeignKey('places.id'),
-               nullable=False, primary_key=True),
-        Column('amenity_id', String(60), ForeignKey('amenities.id'),
-               nullable=False, primary_key=True))
+place_amenity = Table('place_amenity', Base.metadata, Column(
+    'place_id', String(60), ForeignKey('places.id'),
+    nullable=False, primary_key=True), Column(
+    'amenity_id', String(60), ForeignKey('amenities.id'),
+    nullable=False, primary_key=True))
 
 
 class Place(BaseModel, Base):
@@ -31,8 +31,7 @@ class Place(BaseModel, Base):
     longitude: float - 0.0
     """
     __tablename__ = 'places'
-
-    if  getenv('HBNB_TYPE_STORAGE') == 'db':
+    if getenv('HBNB_TYPE_STORAGE') == 'db':
         city_id = Column(String(60), ForeignKey('cities.id'), nullable=False)
         user_id = Column(String(60), ForeignKey('users.id'), nullable=False)
         name = Column(String(128), nullable=False)
@@ -59,7 +58,6 @@ class Place(BaseModel, Base):
         longitude = 0.0
         amenity_ids = []
 
-
     @property
     def reviews(self):
         """
@@ -78,7 +76,6 @@ class Place(BaseModel, Base):
     def amenities(self):
         """getter attribute returns the list of Amenity instances"""
         from models import storage
-        #from models.amenity import Amenity
         amenity_list = []
         all_amenities = storage.all('Amenity')
         for amenity in all_amenities.values():
