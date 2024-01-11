@@ -1,33 +1,60 @@
 #!/usr/bin/python3
-# Fabric script that generates .tgz from web_static dir and deploys to servers
-from fabric.api import local, env, run, put, sudo
+"""
+Fabric script that generates a tgz archive from the contents of the web_static
+"""
+
+from fabric.api import local, env, put, run
+from datetime import datetime
+from os.path import isdir, exists
+env.hosts = ['54.160.88.241', '54.197.75.39']
 
 
-env.hosts = ['54.197.75.39', '54.160.88.241']
+def do_pack():
+    """ make tgz archive file """
+    try:
+        date = datetime.now().strftime("%Y%m%d%H%M%S")
+        if not isdir('versions'):
+            local("mkdir versions")
+        file_path = f"versions/web_static_{date}.tgz"
+        local(f"tar -cvzf {file_path} web_static")
+        return file_path
+    except Exception as e:
+        print(f'An error occurred: {e}')
+        return None
 
 
 def do_deploy(archive_path):
-    """Deploy archive to servers"""
-    if archive_path:
-        archive_file = archive_path.split('/')[1]
-        archive_dir = archive_file.split('.')[0]
-        releases = '/data/web_static/releases/'
-        current = '/data/web_static/current'
+    """ deploy the archive file """
+    if exists(archive_path) is False:
+        return False
+    try:
+        ''' Upload a tar archive of an application '''
+        put(archive_path, "/tmp/")
 
-        try:
-            put(archive_path, '/tmp/')
-            run('mkdir -p {}{}'.format(releases, archive_dir))
-            run('tar -xzf /tmp/{} -C {}{}'.format(
-                archive_file, releases, archive_dir))
-            run('rm /tmp/{}'.format(archive_file))
-            run('mv {}{}/web_static/* {}{}'.format(
-                releases, archive_dir, releases, archive_dir))
-            run('rm -rf {}{}/web_static'.format(releases, archive_dir))
-            run('rm -rf {}'.format(current))
-            run('ln -s {}{} {}'.format(releases, archive_dir, current))
+        ''' Extract only the file name from the path '''
+        file_name = archive_path.split("/")[-1]
 
-            return True
-        except Exception:
-            return False
-    else:
+        ''' Extract file name without extension '''
+        no_exten = file_name.split(".")[0]
+
+        ''' Create the archive to the folder '''
+        path = "/data/web_static/releases/"
+        static_path = f"{path}{no_exten}"
+        run(f"mkdir -p {static_path}")
+
+        ''' Uncompress the archive to the folder '''
+        run(f"tar -xzf /tmp/{file_name} -C {static_path}")
+
+        ''' Delete the archive from the web server '''
+        run(f"rm /tmp/{file_name}")
+
+        ''' Delete the symbolic link /data/web_static/current '''
+        run("rm -rf /data/web_static/current")
+
+        ''' Create a new the symbolic link /data/web_static/current '''
+        run(f"ln -s {static_path} /data/web_static/current")
+
+        return True
+    except Exception as e:
+        print(e)
         return False
