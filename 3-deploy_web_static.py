@@ -59,3 +59,11 @@ def do_deploy(archive_path):
         return True
     except:
         return False
+
+
+def deploy():
+    """Launches deploy processes"""
+    archive_path = do_pack()
+    if not archive_path:
+        return False
+    return do_deploy(archive_path)
