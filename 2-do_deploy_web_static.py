@@ -5,9 +5,8 @@ Fabric script that generates a tgz archive from the contents of the web_static
 
 from fabric.api import local, env, put, run
 from datetime import datetime
-from os.path import isdir
+from os.path import exists, isdir
 env.hosts = ['54.160.88.241', '54.197.75.39']
-
 
 def do_pack():
     """ make tgz archive file """
@@ -22,22 +21,42 @@ def do_pack():
         print(f'An error occurred: {e}')
         return None
 
+
 def do_deploy(archive_path):
-    """distributes an archive to the web servers"""
+    """ deploy the archive file """
     if exists(archive_path) is False:
         return False
     try:
-        file_n = archive_path.split("/")[-1]
-        no_ext = file_n.split(".")[0]
+        ''' Upload a tar archive of an application '''
+        put(archive_path, "/tmp/")
+
+        ''' Extract only the file name from the path '''
+        file_name = archive_path.split("/")[-1]
+
+        ''' Extract file name without extension '''
+        no_exten = file_name.split(".")[0]
+
+        ''' Create the archive to the folder '''
         path = "/data/web_static/releases/"
-        put(archive_path, '/tmp/')
-        run('mkdir -p {}{}/'.format(path, no_ext))
-        run('tar -xzf /tmp/{} -C {}{}/'.format(file_n, path, no_ext))
-        run('rm /tmp/{}'.format(file_n))
-        run('mv {0}{1}/web_static/* {0}{1}/'.format(path, no_ext))
-        run('rm -rf {}{}/web_static'.format(path, no_ext))
-        run('rm -rf /data/web_static/current')
-        run('ln -s {}{}/ /data/web_static/current'.format(path, no_ext))
+        static_path = f"{path}{no_exten}"
+        run(f"mkdir -p {static_path}")
+
+        ''' Uncompress the archive to the folder '''
+        run(f"tar -xzf /tmp/{file_name} -C {static_path}")
+        run(f'mv {static_path}/web_static/* {static_path}/')
+        run(f'rm -rf {static_path}/web_static')
+
+        ''' Delete the archive from the web server '''
+        run(f"rm /tmp/{file_name}")
+
+        ''' Delete the symbolic link /data/web_static/current '''
+        run("rm -rf /data/web_static/current")
+
+        ''' Create a new the symbolic link /data/web_static/current '''
+        run(f"ln -s {static_path} /data/web_static/current")
+
         return True
     except Exception as e:
+        print(e)
         return False
+
