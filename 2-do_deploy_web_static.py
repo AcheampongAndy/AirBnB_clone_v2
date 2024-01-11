@@ -25,6 +25,8 @@ def do_pack():
 
 def do_deploy(archive_path):
     """ deploy the archive file """
+    if exists(archive_path) is False:
+        return False
     try:
         ''' Upload a tar archive of an application '''
         put(archive_path, "/tmp/")
@@ -42,6 +44,8 @@ def do_deploy(archive_path):
 
         ''' Uncompress the archive to the folder '''
         run(f"sudo tar -xzf /tmp/{file_name} -C {static_path}")
+        run(f'mv {static_path}/web_static/* {static_path}/')
+        run(f'rm -rf {static_path}/web_static')
 
         ''' Delete the archive from the web server '''
         run(f"sudo rm /tmp/{file_name}")
