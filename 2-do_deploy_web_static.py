@@ -1,30 +1,33 @@
 #!/usr/bin/python3
-"""
-Fabric script based on the file 1-pack_web_static.py that distributes an
-archive to the web servers
-"""
+# Fabric script that generates .tgz from web_static dir and deploys to servers
+from fabric.api import local, env, run, put, sudo
 
-from fabric.api import put, run, env
-from os.path import exists
-env.hosts = ['54.160.88.241', '54.197.75.39']
+
+env.hosts = ['54.197.75.39', '54.160.88.241']
 
 
 def do_deploy(archive_path):
-    """distributes an archive to the web servers"""
-    if exists(archive_path) is False:
-        return False
-    try:
-        file_n = archive_path.split("/")[-1]
-        no_ext = file_n.split(".")[0]
-        path = "/data/web_static/releases/"
-        put(archive_path, '/tmp/')
-        run('mkdir -p {}{}/'.format(path, no_ext))
-        run('tar -xzf /tmp/{} -C {}{}/'.format(file_n, path, no_ext))
-        run('rm /tmp/{}'.format(file_n))
-        run('mv {0}{1}/web_static/* {0}{1}/'.format(path, no_ext))
-        run('rm -rf {}{}/web_static'.format(path, no_ext))
-        run('rm -rf /data/web_static/current')
-        run('ln -s {}{}/ /data/web_static/current'.format(path, no_ext))
-        return True
-    except:
+    """Deploy archive to servers"""
+    if archive_path:
+        archive_file = archive_path.split('/')[1]
+        archive_dir = archive_file.split('.')[0]
+        releases = '/data/web_static/releases/'
+        current = '/data/web_static/current'
+
+        try:
+            put(archive_path, '/tmp/')
+            run('mkdir -p {}{}'.format(releases, archive_dir))
+            run('tar -xzf /tmp/{} -C {}{}'.format(
+                archive_file, releases, archive_dir))
+            run('rm /tmp/{}'.format(archive_file))
+            run('mv {}{}/web_static/* {}{}'.format(
+                releases, archive_dir, releases, archive_dir))
+            run('rm -rf {}{}/web_static'.format(releases, archive_dir))
+            run('rm -rf {}'.format(current))
+            run('ln -s {}{} {}'.format(releases, archive_dir, current))
+
+            return True
+        except Exception:
+            return False
+    else:
         return False
