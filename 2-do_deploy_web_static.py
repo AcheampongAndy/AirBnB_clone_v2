@@ -6,7 +6,7 @@ archive to the web servers
 
 from fabric.api import put, run, env
 from os.path import exists
-env.hosts = ['54.160.88.241', '54.197.75.39']
+env.hosts = ['142.44.167.228', '144.217.246.195']
 
 
 def do_deploy(archive_path):
@@ -14,34 +14,17 @@ def do_deploy(archive_path):
     if exists(archive_path) is False:
         return False
     try:
-        ''' Upload a tar archive of an application '''
-        put(archive_path, "/tmp/")
-
-        ''' Extract only the file name from the path '''
-        file_name = archive_path.split("/")[-1]
-
-        ''' Extract file name without extension '''
-        no_exten = file_name.split(".")[0]
-
-        ''' Create the archive to the folder '''
+        file_n = archive_path.split("/")[-1]
+        no_ext = file_n.split(".")[0]
         path = "/data/web_static/releases/"
-        static_path = f"{path}{no_exten}"
-        run(f"mkdir -p {static_path}")
-
-        ''' Uncompress the archive to the folder '''
-        run(f"tar -xzf /tmp/{file_name} -C {static_path}")
-        run(f'mv {static_path}/web_static/* {static_path}/')
-        run(f'rm -rf {static_path}/web_static')
-
-        ''' Delete the archive from the web server '''
-        run(f"rm /tmp/{file_name}")
-
-        ''' Delete the symbolic link /data/web_static/current '''
-        run("rm -rf /data/web_static/current")
-
-        ''' Create a new the symbolic link /data/web_static/current '''
-        run(f"ln -s {static_path} /data/web_static/current")
-
+        put(archive_path, '/tmp/')
+        run('mkdir -p {}{}/'.format(path, no_ext))
+        run('tar -xzf /tmp/{} -C {}{}/'.format(file_n, path, no_ext))
+        run('rm /tmp/{}'.format(file_n))
+        run('mv {0}{1}/web_static/* {0}{1}/'.format(path, no_ext))
+        run('rm -rf {}{}/web_static'.format(path, no_ext))
+        run('rm -rf /data/web_static/current')
+        run('ln -s {}{}/ /data/web_static/current'.format(path, no_ext))
         return True
     except:
         return False
