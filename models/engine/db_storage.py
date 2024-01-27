@@ -11,10 +11,8 @@ from models.amenity import Amenity
 from models.place import Place
 from models.review import Review
 
-classes = {"User": User, "BaseModel": BaseModel,
-           "Place": Place, "State": State,
-           "City": City, "Amenity": Amenity,
-           "Review": Review}
+classes = {"BaseModel": BaseModel, "State": State, "City": City,
+           "User":User, "Place":Place, "Review":Review, "Amenity":Amenity}
 
 class DBStorage:
     __engine = None
@@ -50,13 +48,9 @@ class DBStorage:
             for obj in objs:
                 key = "{}.{}".format(type(obj).__name__, obj.id)
                 result[key] = obj
-        '''else:
-            for clss in classes.values():
-                objs = self.__session.query(clss).all()
-                for obj in objs:
-                    result.append(repr(obj))'''
 
         return result
+
 
     def new(self, obj):
         """
@@ -86,3 +80,7 @@ class DBStorage:
         Session = scoped_session(sessionmaker(bind=self.__engine,
             expire_on_commit=False))
         self.__session = Session()
+
+    def close(self):
+        """call remove() method on the private session attribute"""
+        self.__session.remove()

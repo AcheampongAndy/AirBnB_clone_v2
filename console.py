@@ -17,10 +17,8 @@ import shlex
 
 class HBNBCommand(cmd.Cmd):
     """class HBNBCommand"""
-    _classes = {"User": User, "BaseModel": BaseModel,
-           "Place": Place, "State": State,
-           "City": City, "Amenity": Amenity,
-           "Review": Review}
+    _classes = {"BaseModel": BaseModel,  "State": State, "City": City,
+                "User":User, "Place":Place, "Review":Review, "Amenity":Amenity}
 
     prompt = "(hbnb) "
 
@@ -178,18 +176,19 @@ class HBNBCommand(cmd.Cmd):
         results = []
 
         if len(arg) >= 1:
-            if arg[0] in self._classes:
-                all_objects = storage.all(arg[0])
+            class_name = arg[0]
+            if class_name in self._classes:
+                all_objects = storage.all(class_name)
                 for key, obj in all_objects.items():
-                    if key.startswith(arg[0]):
-                        results.append(obj)
+                    #if key.startswith(arg[0]):
+                    results.append(str(obj))
                 print(results)
             else:
                 print("** class doesn't exist **")
         else:
             all_objects = storage.all()
             for obj in all_objects.values():
-                results.append(obj)
+                results.append(str(obj))
             print(results)
 
     def do_count(self, line):

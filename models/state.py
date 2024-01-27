@@ -19,13 +19,14 @@ class State(BaseModel, Base):
         name = Column(String(128), nullable=False)
         cities = relationship("City", passive_deletes=True,
                               backref="state")
+
     else:
         name = ''
 
         @property
         def cities(self):
             """
-            Getter attribute cities that returns the list of City instances
+            Getter attribute cities that returns the list of City
             with state_id equals to the current State.id
             """
             from models import storage
